@@ -27,7 +27,7 @@ import org.springframework.util.ObjectUtils;
  * @author Diego Krupitza
  * @since 2.0.3
  */
-interface DeclaredQuery {
+public interface DeclaredQuery {
 
 	/**
 	 * Creates a {@literal DeclaredQuery} from a query {@literal String}.
