@@ -29,6 +29,7 @@ import org.springframework.data.jpa.repository.query.ParameterBinding.InParamete
 import org.springframework.data.jpa.repository.query.ParameterBinding.LikeParameterBinding;
 import org.springframework.data.jpa.repository.query.ParameterBinding.MethodInvocationArgument;
 import org.springframework.data.jpa.repository.query.ParameterBinding.ParameterOrigin;
+import org.springframework.data.jpa.repository.query.ParameterBindingParser.Metadata;
 import org.springframework.data.repository.query.parser.Part.Type;
 
 /**
@@ -728,8 +729,8 @@ class StringQueryUnitTests {
 	private void checkHasNamedParameter(String query, boolean expected, String label, boolean nativeQuery) {
 
 		List<ParameterBinding> bindings = new ArrayList<>();
-		StringQuery.ParameterBindingParser.INSTANCE.parseParameterBindingsOfQueryIntoBindingsAndReturnCleanedQuery(query,
-				bindings, new StringQuery.Metadata());
+		ParameterBindingParser.INSTANCE.parseParameterBindingsOfQueryIntoBindingsAndReturnCleanedQuery(query,
+				bindings, new Metadata());
 
 		assertThat(bindings.stream().anyMatch(it -> it.getIdentifier().hasName())) //
 				.describedAs(String.format("<%s> (%s)", query, label)) //
