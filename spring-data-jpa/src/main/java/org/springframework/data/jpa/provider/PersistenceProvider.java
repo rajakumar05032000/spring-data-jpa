@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.LongSupplier;
 
 import org.eclipse.persistence.config.QueryHints;
 import org.eclipse.persistence.jpa.JpaQuery;
@@ -36,6 +37,8 @@ import org.eclipse.persistence.queries.ScrollableCursor;
 import org.hibernate.ScrollMode;
 import org.hibernate.ScrollableResults;
 import org.hibernate.proxy.HibernateProxy;
+import org.hibernate.query.SelectionQuery;
+
 import org.springframework.data.util.CloseableIterator;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -109,6 +112,15 @@ public enum PersistenceProvider implements QueryExtractor, ProxyIdAccessor, Quer
 			return "org.hibernate.comment";
 		}
 
+		@Override
+		public long getResultCount(Query resultQuery, LongSupplier countSupplier) {
+
+			if (resultQuery instanceof SelectionQuery<?> sq) {
+				return sq.getResultCount();
+			}
+
+			return super.getResultCount(resultQuery, countSupplier);
+		}
 	},
 
 	/**
@@ -347,6 +359,18 @@ public enum PersistenceProvider implements QueryExtractor, ProxyIdAccessor, Quer
 	}
 
 	/**
+	 * Obtain the result count from a {@link Query} returning the result or fall back to {@code countSupplier} if the
+	 * query does not provide the result count.
+	 *
+	 * @param resultQuery the query that has returned {@link Query#getResultList()}
+	 * @param countSupplier fallback supplier to provide the count if the query does not provide it.
+	 * @return the result count.
+	 */
+	public long getResultCount(Query resultQuery, LongSupplier countSupplier) {
+		return countSupplier.getAsLong();
+	}
+
+	/**
 	 * Holds the PersistenceProvider specific interface names.
 	 *
 	 * @author Thomas Darimont
@@ -416,6 +440,7 @@ public enum PersistenceProvider implements QueryExtractor, ProxyIdAccessor, Quer
 				scrollableResults.close();
 			}
 		}
+
 	}
 
 	/**

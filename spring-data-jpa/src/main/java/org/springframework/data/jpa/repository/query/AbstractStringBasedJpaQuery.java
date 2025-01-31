@@ -56,6 +56,7 @@ abstract class AbstractStringBasedJpaQuery extends AbstractJpaQuery {
 	private final QuerySortRewriter querySortRewriter;
 	private final Lazy<ParameterBinder> countParameterBinder;
 	private final ValueEvaluationContextProvider valueExpressionContextProvider;
+	private final boolean hasDeclaredCountQuery;
 
 	/**
 	 * Creates a new {@link AbstractStringBasedJpaQuery} from the given {@link JpaQueryMethod}, {@link EntityManager} and
@@ -81,10 +82,11 @@ abstract class AbstractStringBasedJpaQuery extends AbstractJpaQuery {
 		this.valueExpressionContextProvider = valueExpressionDelegate.createValueContextProvider(method.getParameters());
 		this.query = new ExpressionBasedStringQuery(queryString, method.getEntityInformation(), valueExpressionDelegate,
 				method.isNativeQuery());
+		this.hasDeclaredCountQuery = StringUtils.hasText(countQueryString);
 
 		this.countQuery = Lazy.of(() -> {
 
-			if (StringUtils.hasText(countQueryString)) {
+			if (this.hasDeclaredCountQuery) {
 
 				return new ExpressionBasedStringQuery(countQueryString, method.getEntityInformation(), valueExpressionDelegate,
 						method.isNativeQuery());
@@ -113,6 +115,11 @@ abstract class AbstractStringBasedJpaQuery extends AbstractJpaQuery {
 
 		Assert.isTrue(method.isNativeQuery() || !query.usesJdbcStyleParameters(),
 				"JDBC style parameters (?) are not supported for JPA queries");
+	}
+
+	@Override
+	public boolean hasDeclaredCountQuery() {
+		return hasDeclaredCountQuery;
 	}
 
 	@Override

@@ -39,6 +39,7 @@ import org.mockito.quality.Strictness;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.provider.PersistenceProvider;
 import org.springframework.data.jpa.provider.QueryExtractor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.query.JpaQueryExecution.ModifyingExecution;
@@ -182,7 +183,7 @@ class JpaQueryExecutionUnitTests {
 		when(jpaQuery.createQuery(Mockito.any())).thenReturn(query);
 		when(countQuery.getResultList()).thenReturn(Arrays.asList(20L));
 
-		PagedExecution execution = new PagedExecution();
+		PagedExecution execution = new PagedExecution(PersistenceProvider.GENERIC_JPA);
 		execution.doExecute(jpaQuery,
 				new JpaParametersParameterAccessor(parameters, new Object[] { PageRequest.of(2, 10) }));
 
@@ -198,7 +199,7 @@ class JpaQueryExecutionUnitTests {
 		when(jpaQuery.createQuery(Mockito.any())).thenReturn(query);
 		when(query.getResultList()).thenReturn(Arrays.asList(0L));
 
-		PagedExecution execution = new PagedExecution();
+		PagedExecution execution = new PagedExecution(PersistenceProvider.GENERIC_JPA);
 		execution.doExecute(jpaQuery,
 				new JpaParametersParameterAccessor(parameters, new Object[] { PageRequest.of(0, 10) }));
 
@@ -214,7 +215,7 @@ class JpaQueryExecutionUnitTests {
 		when(jpaQuery.createQuery(Mockito.any())).thenReturn(query);
 		when(query.getResultList()).thenReturn(Arrays.asList(new Object(), new Object(), new Object(), new Object()));
 
-		PagedExecution execution = new PagedExecution();
+		PagedExecution execution = new PagedExecution(PersistenceProvider.GENERIC_JPA);
 		execution.doExecute(jpaQuery,
 				new JpaParametersParameterAccessor(parameters, new Object[] { PageRequest.of(0, 10) }));
 
@@ -229,7 +230,7 @@ class JpaQueryExecutionUnitTests {
 		when(jpaQuery.createQuery(Mockito.any())).thenReturn(query);
 		when(query.getResultList()).thenReturn(Arrays.asList(new Object(), new Object(), new Object(), new Object()));
 
-		PagedExecution execution = new PagedExecution();
+		PagedExecution execution = new PagedExecution(PersistenceProvider.GENERIC_JPA);
 		execution.doExecute(jpaQuery,
 				new JpaParametersParameterAccessor(parameters, new Object[] { PageRequest.of(5, 10) }));
 
@@ -246,7 +247,7 @@ class JpaQueryExecutionUnitTests {
 		when(jpaQuery.createCountQuery(Mockito.any())).thenReturn(query);
 		when(countQuery.getResultList()).thenReturn(Arrays.asList(20L));
 
-		PagedExecution execution = new PagedExecution();
+		PagedExecution execution = new PagedExecution(PersistenceProvider.GENERIC_JPA);
 		execution.doExecute(jpaQuery,
 				new JpaParametersParameterAccessor(parameters, new Object[] { PageRequest.of(4, 4) }));
 
@@ -263,7 +264,7 @@ class JpaQueryExecutionUnitTests {
 		when(jpaQuery.createCountQuery(Mockito.any())).thenReturn(query);
 		when(countQuery.getResultList()).thenReturn(Arrays.asList(20L));
 
-		PagedExecution execution = new PagedExecution();
+		PagedExecution execution = new PagedExecution(PersistenceProvider.GENERIC_JPA);
 		execution.doExecute(jpaQuery,
 				new JpaParametersParameterAccessor(parameters, new Object[] { PageRequest.of(4, 4) }));
 
