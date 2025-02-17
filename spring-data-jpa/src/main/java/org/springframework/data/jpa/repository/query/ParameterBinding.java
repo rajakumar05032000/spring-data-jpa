@@ -26,12 +26,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.data.expression.ValueExpression;
+
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.jpa.provider.PersistenceProvider;
 import org.springframework.data.jpa.repository.support.JpqlQueryTemplates;
 import org.springframework.data.repository.query.Parameter;
 import org.springframework.data.repository.query.parser.Part;
 import org.springframework.data.repository.query.parser.Part.Type;
-import org.springframework.lang.Nullable;
+import org.springframework.lang.Contract;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -75,8 +77,7 @@ class ParameterBinding {
 	/**
 	 * @return the name if available or {@literal null}.
 	 */
-	@Nullable
-	public String getName() {
+	public @Nullable String getName() {
 		return identifier.hasName() ? identifier.getName() : null;
 	}
 
@@ -150,8 +151,7 @@ class ParameterBinding {
 	/**
 	 * @param valueToBind value to prepare
 	 */
-	@Nullable
-	public Object prepare(@Nullable Object valueToBind) {
+	public @Nullable Object prepare(@Nullable Object valueToBind) {
 		return valueToBind;
 	}
 
@@ -230,7 +230,7 @@ class ParameterBinding {
 		}
 
 		@Override
-		public Object prepare(@Nullable Object value) {
+		public @Nullable Object prepare(@Nullable Object value) {
 
 			if (value == null || parameterType == null) {
 				return value;
@@ -251,9 +251,10 @@ class ParameterBinding {
 					: value;
 		}
 
-		@Nullable
+
 		@SuppressWarnings("unchecked")
-		private Collection<?> potentiallyIgnoreCase(boolean ignoreCase, @Nullable Collection<?> collection) {
+		@Contract("false, _ -> param2; _, null -> null; true, !null -> new)")
+		private @Nullable Collection<?> potentiallyIgnoreCase(boolean ignoreCase, @Nullable Collection<?> collection) {
 
 			if (!ignoreCase || CollectionUtils.isEmpty(collection)) {
 				return collection;
@@ -274,8 +275,7 @@ class ParameterBinding {
 		 * @param value the value to be converted to a {@link Collection}.
 		 * @return the object itself as a {@link Collection} or a {@link Collection} constructed from the value.
 		 */
-		@Nullable
-		private static Collection<?> toCollection(@Nullable Object value) {
+		private static @Nullable Collection<?> toCollection(@Nullable Object value) {
 
 			if (value == null) {
 				return null;
@@ -312,7 +312,7 @@ class ParameterBinding {
 		}
 
 		@Override
-		public Object prepare(@Nullable Object value) {
+		public @Nullable Object prepare(@Nullable Object value) {
 
 			if (!ObjectUtils.isArray(value)) {
 				return value;
@@ -374,9 +374,8 @@ class ParameterBinding {
 		/**
 		 * Extracts the raw value properly.
 		 */
-		@Nullable
 		@Override
-		public Object prepare(@Nullable Object value) {
+		public @Nullable Object prepare(@Nullable Object value) {
 
 			Object unwrapped = PersistenceProvider.unwrapTypedParameterValue(value);
 			if (unwrapped == null) {
@@ -643,8 +642,10 @@ class ParameterBinding {
 				identifier = BindingIdentifier.of(name, position);
 			} else if (!ObjectUtils.isEmpty(name)) {
 				identifier = BindingIdentifier.of(name);
-			} else {
+			} else if (position != null) {
 				identifier = BindingIdentifier.of(position);
+			} else {
+				throw new IllegalStateException("Neither name nor position available for binding");
 			}
 
 			return ofParameter(identifier);

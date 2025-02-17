@@ -39,7 +39,6 @@ import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.repository.query.FluentQuery.FetchableFluentQuery;
 import org.springframework.data.repository.query.ReturnedType;
 import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 import com.querydsl.core.types.EntityPath;
@@ -50,6 +49,7 @@ import com.querydsl.core.types.Visitor;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.JPQLSerializer;
 import com.querydsl.jpa.impl.AbstractJPAQuery;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Immutable implementation of {@link FetchableFluentQuery} based on a Querydsl {@link Predicate}. All methods that
@@ -145,7 +145,7 @@ class FetchableFluentQueryByPredicate<S, R> extends FluentQuerySupport<S, R> imp
 	}
 
 	@Override
-	public R oneValue() {
+	public @Nullable R oneValue() {
 
 		List<?> results = createSortedAndProjectedQuery(this.sort) //
 				.limit(2) // Never need more than 2 values
@@ -159,7 +159,7 @@ class FetchableFluentQueryByPredicate<S, R> extends FluentQuerySupport<S, R> imp
 	}
 
 	@Override
-	public R firstValue() {
+	public @Nullable R firstValue() {
 
 		List<?> results = createSortedAndProjectedQuery(this.sort) //
 				.limit(1) // Never need more than 1 value
