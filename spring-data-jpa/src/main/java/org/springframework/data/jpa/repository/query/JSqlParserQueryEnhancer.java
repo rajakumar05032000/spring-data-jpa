@@ -68,7 +68,7 @@ import org.springframework.util.StringUtils;
  */
 public class JSqlParserQueryEnhancer implements QueryEnhancer {
 
-	private final DeclaredQuery query;
+	private final QueryString query;
 	private final Statement statement;
 	private final ParsedType parsedType;
 	private final boolean hasConstructorExpression;
@@ -81,7 +81,7 @@ public class JSqlParserQueryEnhancer implements QueryEnhancer {
 	/**
 	 * @param query the query we want to enhance. Must not be {@literal null}.
 	 */
-	public JSqlParserQueryEnhancer(DeclaredQuery query) {
+	public JSqlParserQueryEnhancer(QueryString query) {
 
 		this.query = query;
 		this.statement = parseStatement(query.getQueryString(), Statement.class);
@@ -292,7 +292,7 @@ public class JSqlParserQueryEnhancer implements QueryEnhancer {
 	}
 
 	@Override
-	public DeclaredQuery getQuery() {
+	public QueryString getQuery() {
 		return this.query;
 	}
 
@@ -366,7 +366,7 @@ public class JSqlParserQueryEnhancer implements QueryEnhancer {
 		return createCountQueryFor(this.query, selectBody, countProjection, primaryAlias);
 	}
 
-	private static String createCountQueryFor(DeclaredQuery query, PlainSelect selectBody,
+	private static String createCountQueryFor(QueryString query, PlainSelect selectBody,
 			@Nullable String countProjection, @Nullable String primaryAlias) {
 
 		// remove order by

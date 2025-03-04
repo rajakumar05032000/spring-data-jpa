@@ -28,13 +28,13 @@ import org.springframework.lang.Nullable;
  */
 public class DefaultQueryEnhancer implements QueryEnhancer {
 
-	private final DeclaredQuery query;
+	private final QueryString query;
 	private final boolean hasConstructorExpression;
 	private final String alias;
 	private final String projection;
 	private final Set<String> joinAliases;
 
-	public DefaultQueryEnhancer(DeclaredQuery query) {
+	public DefaultQueryEnhancer(QueryString query) {
 		this.query = query;
 		this.hasConstructorExpression = QueryUtils.hasConstructorExpression(query.getQueryString());
 		this.alias = QueryUtils.detectAlias(query.getQueryString());
@@ -59,7 +59,9 @@ public class DefaultQueryEnhancer implements QueryEnhancer {
 
 	@Override
 	public String createCountQueryFor(@Nullable String countProjection) {
-		return QueryUtils.createCountQueryFor(this.query.getQueryString(), countProjection, this.query.isNativeQuery());
+
+		boolean nativeQuery = this.query instanceof DeclaredQuery dc ? dc.isNativeQuery() : true;
+		return QueryUtils.createCountQueryFor(this.query.getQueryString(), countProjection, nativeQuery);
 	}
 
 	@Override
@@ -83,7 +85,7 @@ public class DefaultQueryEnhancer implements QueryEnhancer {
 	}
 
 	@Override
-	public DeclaredQuery getQuery() {
+	public QueryString getQuery() {
 		return this.query;
 	}
 }

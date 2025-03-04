@@ -40,16 +40,6 @@ class EmptyIntrospectedQuery implements EntityQuery {
 	}
 
 	@Override
-	public String getQueryString() {
-		return "";
-	}
-
-	@Override
-	public boolean isNativeQuery() {
-		return false;
-	}
-
-	@Override
 	public boolean hasConstructorExpression() {
 		return false;
 	}
@@ -57,6 +47,11 @@ class EmptyIntrospectedQuery implements EntityQuery {
 	@Override
 	public boolean isDefaultProjection() {
 		return false;
+	}
+
+	@Override
+	public String getQueryString() {
+		return "";
 	}
 
 	@Override
@@ -77,5 +72,10 @@ class EmptyIntrospectedQuery implements EntityQuery {
 	@Override
 	public boolean usesJdbcStyleParameters() {
 		return false;
+	}
+
+	@Override
+	public DeclaredQuery getDeclaredQuery() {
+		return DeclaredQuery.nativeQuery("");
 	}
 }
