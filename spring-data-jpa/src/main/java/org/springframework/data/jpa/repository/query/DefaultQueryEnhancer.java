@@ -28,13 +28,13 @@ import org.springframework.lang.Nullable;
  */
 public class DefaultQueryEnhancer implements QueryEnhancer {
 
-	private final QueryString query;
+	private final StructuredQuery query;
 	private final boolean hasConstructorExpression;
 	private final String alias;
 	private final String projection;
 	private final Set<String> joinAliases;
 
-	public DefaultQueryEnhancer(QueryString query) {
+	public DefaultQueryEnhancer(StructuredQuery query) {
 		this.query = query;
 		this.hasConstructorExpression = QueryUtils.hasConstructorExpression(query.getQueryString());
 		this.alias = QueryUtils.detectAlias(query.getQueryString());
@@ -85,7 +85,7 @@ public class DefaultQueryEnhancer implements QueryEnhancer {
 	}
 
 	@Override
-	public QueryString getQuery() {
+	public StructuredQuery getQuery() {
 		return this.query;
 	}
 }
