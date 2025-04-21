@@ -28,4 +28,15 @@ public class Customer {
     @Id Long id;
 
     String name;
+
+    public Customer()
+    {
+
+    }
+
+    public Customer(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
 }

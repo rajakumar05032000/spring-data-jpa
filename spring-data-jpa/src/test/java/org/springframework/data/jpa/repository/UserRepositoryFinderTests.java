@@ -37,9 +37,12 @@ import org.springframework.data.domain.ScrollPosition;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Window;
+import org.springframework.data.jpa.domain.sample.Customer;
+import org.springframework.data.jpa.domain.sample.CustomerDTO;
 import org.springframework.data.jpa.domain.sample.Role;
 import org.springframework.data.jpa.domain.sample.User;
 import org.springframework.data.jpa.provider.PersistenceProvider;
+import org.springframework.data.jpa.repository.sample.CustomerRepository;
 import org.springframework.data.jpa.repository.sample.RoleRepository;
 import org.springframework.data.jpa.repository.sample.UserRepository;
 import org.springframework.data.jpa.repository.sample.UserRepository.IdOnly;
@@ -68,6 +71,7 @@ class UserRepositoryFinderTests {
 	@Autowired UserRepository userRepository;
 	@Autowired RoleRepository roleRepository;
 	@Autowired EntityManager em;
+	@Autowired CustomerRepository customerRepository;
 
 	PersistenceProvider provider;
 
@@ -77,6 +81,8 @@ class UserRepositoryFinderTests {
 	private Role drummer;
 	private Role guitarist;
 	private Role singer;
+	private Customer customer1;
+	private Customer customer2;
 
 	@BeforeEach
 	void setUp() {
@@ -88,15 +94,38 @@ class UserRepositoryFinderTests {
 		dave = userRepository.save(new User("Dave", "Matthews", "dave@dmband.com", singer));
 		carter = userRepository.save(new User("Carter", "Beauford", "carter@dmband.com", singer, drummer));
 		oliver = userRepository.save(new User("Oliver August", "Matthews", "oliver@dmband.com"));
+		customer1 = customerRepository.save(new Customer(1L,"Raja"));
+		customer2 = customerRepository.save(new Customer(2L, "Raja"));
 
 		provider = PersistenceProvider.fromEntityManager(em);
 	}
+
+
+	@Test
+	void testMapping()
+	{
+		List<CustomerDTO>  customerDTOList = customerRepository.findByNameNativeQuery2("Raja");
+		assertThat(customerDTOList.size()).isEqualTo(2);
+		System.out.println(customerDTOList);
+	}
+
+	@Test
+	void testMapping2()
+	{
+		CustomerDTO  customerDTO = customerRepository.findByNameNativeQuery3("Raja");
+		System.out.println(customerDTO);
+		assertThat(customerDTO.getId()).isEqualTo(1);
+		assertThat(customerDTO.getName()).isEqualTo("Raja");
+	}
+
+
 
 	@AfterEach
 	void clearUp() {
 
 		userRepository.deleteAll();
 		roleRepository.deleteAll();
+		customerRepository.deleteAll();
 	}
 
 	/**

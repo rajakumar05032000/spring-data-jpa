@@ -23,15 +23,15 @@ import jakarta.persistence.Tuple;
 import jakarta.persistence.TupleElement;
 import jakarta.persistence.TypedQuery;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
+import org.hibernate.jpa.spi.NativeQueryTupleTransformer;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.jpa.provider.PersistenceProvider;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -51,6 +51,7 @@ import org.springframework.data.util.Lazy;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * Abstract base class to implement {@link RepositoryQuery}s.
@@ -150,10 +151,55 @@ public abstract class AbstractJpaQuery implements RepositoryQuery {
 
 		JpaParametersParameterAccessor accessor = obtainParameterAccessor(values);
 		Object result = execution.execute(this, accessor);
-
 		ResultProcessor withDynamicProjection = method.getResultProcessor().withDynamicProjection(accessor);
+		Class<?> clazz = method.getReturnedObjectType();
+		Method[] methods = ReflectionUtils.getDeclaredMethods(clazz);
+		Map<String, Method> setterMethodsMap = new ConcurrentHashMap<>();
+		for(Method method : methods)
+		{
+			String methodName = method.getName();
+			if(methodName.startsWith("set") && method.getParameterCount() == 1)
+			{
+				String fieldName = methodName.substring(3).toLowerCase();
+				setterMethodsMap.put(fieldName, method);
+			}
+		}
+		try {
+			Constructor constructor = clazz.getConstructor();
+			if(result instanceof Collection<?>)
+			{
+				Collection resultList = result instanceof List<?> ? new ArrayList<>() : new HashSet();
+				for(var item : (Iterable) result)
+				{
+					var res = getResultObject((Tuple) item, constructor, setterMethodsMap);
+					resultList.add(res);
+				}
+				return resultList;
+			}
+			else return getResultObject((Tuple) result, constructor, setterMethodsMap);
+		}
+		catch (Exception e) {}
+
 		return withDynamicProjection.processResult(result,
 				new TupleConverter(withDynamicProjection.getReturnedType(), method.isNativeQuery()));
+
+	}
+
+
+	@Nullable
+	private static Object getResultObject(Tuple item, Constructor constructor, Map<String, Method> setterMethodsMap)
+			throws InstantiationException, IllegalAccessException, InvocationTargetException {
+		var res = constructor.newInstance();
+		for(var field : item.getElements())
+		{
+			String fieldName = field.getAlias().toLowerCase();
+			if(setterMethodsMap.containsKey(fieldName))
+			{
+				Object val = item.get(fieldName);
+				setterMethodsMap.get(fieldName).invoke(res, val);
+			}
+		}
+		return res;
 	}
 
 	private JpaParametersParameterAccessor obtainParameterAccessor(Object[] values) {
